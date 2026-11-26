@@ -30,5 +30,5 @@ Then stop, with 3 bullets: the tables and their row counts; what parsing changed
 ## Formats
 
 - JSON, JSONL, nested fields: `json.md`.
-- Parquet, Excel, SQL, many files per table, big files: `big_or_other.md`.
+- Parquet: `pd.read_parquet`; Excel: `pd.read_excel(sheet_name=None)` for every sheet; SQL: `pd.read_sql`.
 - CSV traps: a `;` separator or a decimal comma (European exports: `sep=";", decimal=","`); an encoding error (`encoding="latin-1"`); a header on line 2+ (`skiprows`); a footer of totals (look at `tail()` too).

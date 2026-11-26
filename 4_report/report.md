@@ -16,19 +16,8 @@ The last step, or whenever the human says "summarise" or "what do you recommend"
    Status: 🟢 good, 🟠 warning, 🔴 bad, the same as the notebooks' lines. Every number with its unit, its statistic (mean, median, share) and, for an effect, its CI.
 3. **What was excluded or changed, and why**: each cleaning rule and exclusion, with how many rows it removed (n and %), and the headline with and without it if it moved.
 4. **Caveats**: what the data can't say (too few runs, a group confounded with a date, a short window, a segment too small), each in one line, with how much it could change the answer.
-5. **The recommendation**: the action, tied to the decision written in the first cell of `3_analysis/analysis.md`'s notebooks; its expected effect with a range; the risk if it's wrong; the guardrail to watch.
+5. **The recommendation**: the action, tied to the decision the task asks for; its expected effect with a range; the risk if it's wrong; the guardrail to watch.
 6. **What would settle what's open**: the next check, experiment or data, with the size needed (more runs, n users, k weeks; `3_analysis/tests.md`, power).
-
-## Rules
-
-| Rule | Detail |
-|---|---|
-| Answer first | the reader may stop after the first sentence |
-| Only numbers already computed | each with the notebook and cell it came from; no new number in the report |
-| Effect, CI, then p | never a p-value alone; "not significant" always with the CI's width |
-| Plain words | no jargon the decision-maker wouldn't use; a test named once, in the table |
-| Known vs guessed | "the data shows" vs "the most likely explanation", never mixed in one sentence |
-| Short | the chat version fits on one screen; the detail lives in the notebooks |
 
 ## In the notebook
 

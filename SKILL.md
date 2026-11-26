@@ -13,7 +13,7 @@ This file is the base: always follow it. Read a sub-file only when the last tabl
 
 - **One ask, one notebook, then hand back.** The steps below are a map, not a plan to run: don't read ahead, install, profile or prepare anything for a step the human hasn't asked for. Every minute spent ahead, the human waits.
 - **All the work in the notebook, cell by cell**: no exploring the data in a shell first, no script that builds a notebook at once. Write a cell, run it, look at its output, then write its verdict.
-- Asked only to "analyse this": go step by step anyway, and stop after each notebook with 3 bullets: what it shows · what is flagged · what to look at next.
+- **Every hand-back: the notebook's name and at most 3 bullets** (what it shows · what is flagged · what to look at next). Nothing else in the chat: the detail is in the notebook. Asked only to "analyse this": go step by step anyway, the same hand-back after each notebook.
 
 ```
 00_loading           load every table, show it raw, fix the types, pickle each one     → 0_load/load.md
@@ -59,9 +59,8 @@ df_tasks = pd.read_pickle("df_tasks.pkl")
 | **A 95 % confidence interval on every bar** | every bar, box or point of a mean, a rate or a share, unasked: `df_rate = df.groupby("group").passed.agg(["mean", "sem"]).reset_index()` then `px.bar(df_rate, x="group", y="mean", error_y=1.96 * df_rate["sem"], text_auto=".1%")`; Wilson for a rate near 0 or 1 (`3_analysis/tests.md`). A count of the whole dataset is exact: "exact count" in its title |
 | **The verdict, in colour, under each plot** | a markdown cell, exactly one of `🟢 <span style="color:#2ca02c">**good**</span>: …` · `🟠 <span style="color:#ff7f0e">**warning**</span>: …` · `🔴 <span style="color:#d62728">**bad**</span>: …`, then why, with the numbers |
 | Colours | green, orange, red only for what a check finds. Categories: dark blue `#1f3a93`, cyan `#00bcd4`, black `#000000`, gray `#808080`, purple `#8e44ad`, in that order, never one colour twice in a plot; 6+ categories: top 4 and "other" in gray. A category keeps its colour in every plot |
-| Names | `df_<table>` from the file name; a derived frame adds what changed (`df_tasks_clean`); `s_` Series or set, `l_` list, `d_` dict |
+| Names | `df_<table>` from the file name; a derived frame adds what changed (`df_tasks_clean`) |
 | Raw data is read-only | a fix is a new frame, made when the human agrees, its rule in the markdown above it; after it, rerun the key and duplicate checks |
-| Rigor in proportion | a mechanical cause (a bug, a unit, a join) is stated and sized, not tested; a test answers "could chance explain this gap?" |
 
 ## Which file to read, and when
 
@@ -70,14 +69,10 @@ df_tasks = pd.read_pickle("df_tasks.pkl")
 | no notebook tool, only a shell | `notebook_io.md` |
 | step `00` | `0_load/load.md` |
 | JSON, JSONL, lists or dicts inside cells | `0_load/json.md` |
-| parquet, Excel, SQL, many files per table, too big for pandas | `0_load/big_or_other.md` |
 | each step `1N` | `1_table/table.md` |
 | no `ydata-profiling` | `1_table/column_flags.md` |
 | free text, prompts or model outputs | `1_table/text.md` |
 | dates or times | `1_table/time.md` |
-| one row per event (click, call, request) | `1_table/events.md` |
-| places or coordinates | `1_table/geo.md` |
-| pairs of ids (user ↔ item, buyer ↔ seller) | `1_table/graph.md` |
 | step `20` | `2_joins/joins.md` |
 | each step `3N` | `3_analysis/analysis.md`, which routes to `3_analysis/kinds/` |
 | a p-value, a confidence interval, a sample size | `3_analysis/tests.md` |

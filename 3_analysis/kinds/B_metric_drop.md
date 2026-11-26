@@ -2,22 +2,6 @@
 
 A metric (revenue, active users, conversion, pass rate, latency) changed, and the question is why. The answer is almost always one of four things: a measurement change, a mix change, a rate change in one segment, or an outside event.
 
-## What you'll hear
-
-- "Daily active users dropped 10 % last week. Why?"
-- "Conversion is down since Tuesday."
-- "Revenue per user went up but total revenue went down."
-- "Our model's accuracy in production fell this month."
-
-## Ask first
-
-| Ask | Why |
-|---|---|
-| The exact definition, and did it change (a new event, a filter, a dashboard fix)? | a third of metric drops are a change in how it's measured |
-| Since when, compared to what (last week, the same week last year)? | seasonality and holidays explain many drops |
-| Sudden or gradual? | sudden: a release, an outage, a logging change; gradual: a trend, a mix shift, competition |
-| What shipped or happened around that date (releases, campaigns, prices, outages, holidays)? | the list of outside events to check |
-
 ## Hypotheses to list
 
 | Hypothesis | Disproved if |
@@ -28,24 +12,6 @@ A metric (revenue, active users, conversion, pass rate, latency) changed, and th
 | a rate drop in one segment (a platform, a version, a country, a channel) | every segment's rate is steady |
 | a release or an outage | the drop doesn't start at the release date, or holds on versions without it |
 | an outside cause (a competitor, a campaign ending, a market change) | the drop is the same where that cause doesn't apply |
-
-## The notebooks
-
-1. **The metric over time**: `px.line(df_daily, x="date", y="metric")` with last year or last period overlaid (`color="period"`), and the release and event dates as `add_vline`. Is the drop real, sudden, seasonal?
-2. **Numerator and denominator apart**: a ratio drops when the top falls or the bottom grows; plot both (`px.line`, one facet each).
-3. **By every segment**: for each dimension (platform, app version, country, channel, new vs returning, device), the metric per value over time (`px.line(color=dim)`), and the change per value as a sorted bar (`px.bar(text_auto=".1f")`).
-4. **Mix vs rate decomposition**: for the main dimension, total change = Σ (share change × old rate) + Σ (old share × rate change) + interaction:
-
-   ```python
-   d = df_seg.pivot(index="segment", columns="period", values=["share", "rate"])
-   mix = ((d.share.after - d.share.before) * d.rate.before).sum()
-   rate = (d.share.before * (d.rate.after - d.rate.before)).sum()
-   ```
-
-   Shown as a bar per segment and component; it says whether the drop is "who" or "how well".
-5. **Drill down**: the segment with the largest contribution, split again by the next dimension; stop when one cell explains most of the drop.
-6. **Measurement check**: events per user, nulls in key fields, a new or missing event name around the date (`A_data_audit.md`).
-7. **Before / after test** on the segment found, if the drop could still be noise.
 
 ## The test
 

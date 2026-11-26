@@ -34,17 +34,6 @@ A practical lookup, not a statistics course. Four gates, in order, before any `s
 | outcome with several factors | adjusting for confounders | regression | `statsmodels.formula.api.ols` / `logit("y ~ group + segment", df)` | the group's effect, the segment held fixed |
 | repeated units (items × runs, users × days) | nested noise | mixed model, or a cluster bootstrap | `statsmodels mixedlm("y ~ group", df, groups=df.item)` | the group's effect, with each unit's own noise |
 
-## Business phrasing → H0
-
-| You hear | H0 | Disproved if |
-|---|---|---|
-| "Is X different between A and B?" | X's mean / rate is the same in A and B | the gap is larger than chance produces |
-| "Did the change help?" | the metric is the same before and after (or treatment = control) | the improvement exceeds the noise |
-| "Is this rate too high?" | the rate equals the benchmark | the observed rate is far enough from it |
-| "Are these related?" | the variables are independent | the association is stronger than chance |
-| "Is this segment worse?" | the segment equals the rest | the gap exceeds sampling noise |
-| "Is it a data bug?" | not a hypothesis: gate 0 | recompute the number directly |
-
 ## Confidence intervals
 
 Always report the effect and its 95 % CI next to the p-value: the CI says how big, the p-value only says "not zero".
@@ -68,25 +57,8 @@ Testing k things at α = 0.05: about k / 20 come out "significant" by chance.
 - Many (every column, every segment): Benjamini-Hochberg (`method="fdr_bh"`), and treat a lone hit as a lead.
 - Say the k: "1 significant among 18 segments" reads very differently from "significant".
 
-## One-sided or two-sided
-
-Two-sided by default. One-sided only when the direction was stated before looking at the data ("is B better?" decided in advance) and the other direction would lead to the same decision as no difference.
-
 ## Power and sample size
 
 - Before a test (design): `statsmodels.stats.power.tt_ind_solve_power(effect_size=d, alpha=0.05, power=0.8)`, or `NormalIndPower` for proportions (`proportion_effectsize(p1, p2)`).
 - After a "no difference": report the CI's width. A small sample can't rule out a large effect: "no significant difference, but the CI is −8 to +6 points" is the honest version.
 - The minimum detectable effect for the n you have, when the human asks "can we even tell?".
-
-## Traps
-
-| Trap | Fix |
-|---|---|
-| testing a bug | gate 0 |
-| confounded groups (A vs B also differ by version, date, source) | the "what changes with the groups" check of `1_table/table.md`; then compare within the confounder, or adjust with a regression |
-| rows treated as independent (samples within items, events within users) | aggregate to the unit first, or a mixed model / cluster bootstrap |
-| scanning many columns or segments | the corrections above |
-| "no difference" from a tiny sample | report the CI |
-| a p-value with no effect size | the effect and its CI, always |
-| a p-value read as the probability H0 is true | it's the chance of a gap this large if H0 were true |
-| one-sided chosen after seeing the result | two-sided |

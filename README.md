@@ -21,10 +21,10 @@ A skill (the Agent Skills format read by Claude Code and Codex, or any agent tol
 ```
 SKILL.md                       the pipeline, the rules, which file when
 notebook_io.md                 append, run and save one cell at a time
-0_load/       load.md · json.md · big_or_other.md
-1_table/      table.md · column_flags.md · text.md · time.md · events.md · geo.md · graph.md
+0_load/       load.md · json.md
+1_table/      table.md (6 cells) · column_flags.md · text.md · time.md (3 cells each)
 2_joins/      joins.md
-3_analysis/   analysis.md (the first 5 minutes, question → hypotheses, which kind) · tests.md (which test when)
+3_analysis/   analysis.md (question → hypotheses, which kind) · tests.md (which test when)
   kinds/      A  is the data right?    data_audit
               B  what happened?        metric_drop · segmentation · funnel · cohort_retention · anomaly
               C  did X cause Y?        ab_test_readout · experiment_design · causal_observational
@@ -36,7 +36,7 @@ notebook_io.md                 append, run and save one cell at a time
 4_report/     report.md
 ```
 
-Every file in `kinds/` has the same sections: what you'll hear, what to ask first, the hypotheses to list with what disproves each, the notebooks, the test, the traps, the answer's shape.
+Every file in `kinds/` has the same 4 short sections: the hypotheses to list with what disproves each, the test, the traps, the answer's shape. The skill is kept minimal on purpose: every check it lists becomes a cell the agent writes, so only checks that pay for their time are in it.
 
 ## Use
 

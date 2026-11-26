@@ -2,18 +2,6 @@
 
 One notebook per question (`30_<name>`, `31_<name>`…), named as the human says. The human owns the hypotheses; your job is to make each one testable, test it, and say what the numbers do and don't show.
 
-## The first 5 minutes, before any code
-
-Write these in the notebook's first markdown cell, from the task text and what the human said. If one is missing and matters, ask it in one line rather than guess.
-
-| Ask | Why |
-|---|---|
-| **Which decision does this serve?** ship or not, which vendor, which mix, how much budget | the answer's shape: a yes / no, a ranking, a number with a range |
-| **The metric**, exactly: its numerator, denominator and time window | "pass rate" per sample, per item or per run gives three different answers |
-| **The unit of analysis**: what one independent observation is (a user, an item, a run, a day) | the test and its sample size follow from it; rows are rarely independent |
-| **The comparison**: against what (a baseline, a control, last month, a benchmark) | no comparison, no finding |
-| **What would change the decision**: the smallest difference that matters | separates "significant" from "worth acting on" |
-
 ## Question → hypotheses → checks
 
 1. **Deliverables first**: the first cell after the setup gives the number the task asks for, as a placeholder, filled in as the analysis goes. Never let the answer wait for the end.
@@ -61,13 +49,3 @@ Read the one file that matches the question (sometimes two). The shape decides, 
 | | "who's missing from this data?" | `kinds/G_selection_bias.md` |
 | | "is the eval clean?", "do train and test overlap?" | `kinds/G_contamination.md` |
 | **Any** | "how would you measure success?", "which metric?" | `kinds/metric_design.md` |
-
-## Habits
-
-| Habit | In practice |
-|---|---|
-| Hypotheses out loud | in the table above, before the code that tests them |
-| Own the number | before quoting a number, reread the cell that made it; "not checked yet, I'd expect X" beats a number nobody read |
-| Rigor in proportion | no p-value on a bug; no 3-day causal model for a 10-minute question |
-| A second look after every fix | after a cleaning or an exclusion, rerun the check that found the problem, and the headline number |
-| Robustness | the headline with and without the questionable rows (contaminated, duplicated, outliers), side by side |

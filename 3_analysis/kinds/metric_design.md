@@ -2,22 +2,6 @@
 
 Choosing the metric before the analysis or the experiment: what number says the product, the model or the change is working. Asked in almost every product question, often first. The answer is a small set: one primary metric, a few guardrails, and how each is computed.
 
-## What you'll hear
-
-- "How would you measure the success of this feature?"
-- "What metric should this team optimise?"
-- "Our metric went up but the business didn't improve. Why?"
-- "Which metric would you use for this A/B test?"
-
-## Ask first
-
-| Ask | Why |
-|---|---|
-| What's the goal, in business terms (revenue, retention, cost, quality)? | the metric is a measurable stand-in for it |
-| Who acts on the metric, how often? | daily decisions need a fast, sensitive metric; strategy a slow, faithful one |
-| What could go wrong if the team pushes the number up? | the guardrails, and the gaming to guard against |
-| What can be measured today, and how soon after the change? | a perfect metric 6 months later is useless for a 2-week test |
-
 ## Hypotheses to list
 
 | Hypothesis | Disproved if |
@@ -27,16 +11,6 @@ Choosing the metric before the analysis or the experiment: what number says the 
 | the metric can't be gamed without hurting users | an obvious way to raise it lowers the goal (clickbait raises clicks, lowers retention) |
 | the guardrails catch the likely harms | a known past failure wouldn't have moved any guardrail |
 | the ratio metric is stable | its numerator and denominator are dominated by a few heavy users |
-
-## The notebooks
-
-1. **The metric tree**: in markdown, the goal → the primary metric → its parts (e.g. revenue = users × conversion × order value); each with its exact numerator, denominator, unit and window.
-2. **Proxy vs goal**: over past periods, segments or experiments, the proxy against the goal (`px.scatter(x="proxy", y="goal", trendline="ols")`, Spearman's ρ); a proxy that doesn't track the goal is not a metric.
-3. **Sensitivity**: the metric's day-to-day or user-to-user variance, and the minimum detectable effect for the expected n (`tests.md`, power); `px.line` of the daily metric with its noise band.
-4. **Distribution**: `px.histogram(log_x=True)` of the per-user metric; heavy tails call for a capped (winsorised) version or a median.
-5. **Ratio metrics**: a per-user ratio (clicks per session) vs a ratio of totals (all clicks / all sessions) give different answers; the variance of a ratio of totals with the delta method, or bootstrap over users.
-6. **Gaming and guardrails**: for each way the primary metric could be pushed up, the guardrail that would catch it (latency, error rate, retention, complaints, cost), in a table.
-7. **The final set**: one primary metric, 2–4 guardrails, 1–2 diagnostics, each with its definition and the change that would count as a win.
 
 ## The test
 
