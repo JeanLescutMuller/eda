@@ -76,6 +76,7 @@ df_tasks = pd.read_pickle("df_tasks.pkl")
 | Rule | Detail |
 |---|---|
 | Minimal code | pandas, Plotly Express, scipy / statsmodels: the library call, no helper functions, no classes; one step per cell, about 15 lines at most |
+| **Read your own outputs; warnings are findings** | after each cell, read its output before the next one. A warning, above all a repeated one (`UndefinedMetricWarning`, `RuntimeWarning: All-NaN slice`, `SettingWithCopyWarning`, a dtype or date silently coerced), means the result is probably wrong: find the cause (a group too small, a single class, a NaN, a wrong dtype), fix it, rerun. Never hide it with `warnings.filterwarnings`. A warning that is harmless gets one line saying why |
 | Normal formatting | one statement per line, never `;`; a long call split inside its parentheses |
 | Plots | Plotly Express only, never matplotlib; one `px` call per plot (several in a cell: `display(px.…, px.…)`); numbers on the plot (`text_auto=True`); a title that states the finding |
 | **A 95 % confidence interval on every bar** | every bar, box or point of a mean, a rate or a share, unasked: `df_rate = df.groupby("group").passed.agg(["mean", "sem"]).reset_index()` then `px.bar(df_rate, x="group", y="mean", error_y=1.96 * df_rate["sem"], text_auto=".1%")`; Wilson for a rate near 0 or 1 (`3_analysis/tests.md`). A count of the whole dataset is exact: "exact count" in its title |
