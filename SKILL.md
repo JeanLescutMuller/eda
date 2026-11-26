@@ -1,101 +1,74 @@
 ---
 name: eda
-description: Exploratory data analysis (EDA) of one or more tables in a Jupyter notebook, in a fixed order - load, then each table alone (overview, each column, columns together), then the tables together (joins, coverage per group) - with short cells, plots rather than tables, and green / orange / red kept for what a check finds. Built on Anthropic's explore-data skill, the ydata-profiling alerts and the Deepchecks / Great Expectations data checks, plus the checks none of them make for comparing groups (coverage per group, a column that changes with the groups, joins). Use at the start of any data analysis, data-science exercise or interview, before any model or test.
+description: Data analysis in Jupyter notebooks, from the raw files to the answer - load, check each table, join, then the analysis the question calls for (what happened, did X cause Y, which is better, what will happen, what should we do, is the data or the world the same), each step its own numbered notebook the human can read while the next one is written. Plotly Express one call per plot, numbers on the plots, a good / warning / bad line under each, green / orange / red kept for what a check finds. Hierarchical - this file is the base; it says which sub-file to read for a data format (JSON, logs, text, time, geo, graphs) or a kind of analysis (A/B test, metric drop, model evaluation, forecasting, pricing, distribution shift…), each with the hypotheses to list, the test to run and the traps. Use for any data analysis, data-science exercise or interview, before any model or test.
 ---
 
-# EDA: know the data before the question
+# EDA: from the raw data to the answer
 
-The human owns the question and the hypotheses; this skill gets the data on the table fast, in a notebook the human can review live.
-Work in the order below, **stop after each section** (Load, each table, cross-table) and wait.
+The human owns the question, the hypotheses and every decision about the data (what to clean, what to drop, what to conclude). This skill gets the data on the table fast, checks it, and runs the analysis the human asks for, in notebooks the human reads while you write the next one.
 
-## Notebook structure
+**This file is the base: always follow it.** Read a sub-file only when the table at the end says so. Paths are relative to this file; if you only have this file, fetch a sub-file from `https://raw.githubusercontent.com/JeanLescutMuller/eda/main/<path>`.
+
+## The pipeline: one notebook per step
 
 ```
-# 1 Loading the data
-# 2 EDA
-## 2.1 Single-table analysis
-### df_<table>            one per table, in the order the task mentions them
-#### Overview             shape, dtypes, head
-#### Single-column        one small plot per column, with its flags
-#### Multi-columns        one row = ?, key and duplicates, what determines what, what changes with the groups
-## 2.2 Cross-table analysis
-                          join keys, coverage per group
-(# 3 … the analysis: the human's, after the EDA)
+00_loading.ipynb          load every table, show it raw, fix the types, pickle each one        → 0_load/load.md
+1N_eda_<table>.ipynb      one per table (10, 11, 12…): profile, key, duplicates, flags          → 1_table/table.md
+20_joins.ipynb            the tables together: keys, rows duplicated or lost by each join       → 2_joins/joins.md
+3N_<question>.ipynb       one per question (30, 31…): hypotheses, plots, tests                  → 3_analysis/analysis.md
+40_report.ipynb           the answer, the numbers behind it, caveats, the recommendation        → 4_report/report.md
 ```
 
-A markdown cell opens each step: one line, what the step checks. After the step's plots: one line, what they show.
+- **A new notebook for each step, named as the human says** (or as above). Once you've moved on, never edit an earlier notebook unless the human asks: the human may be reading it, and every write makes Jupyter reload it on their screen.
+- **Notebooks hand over through pickles**, never through each other's cells: `00` writes `df_<table>.pkl`; a cleaned table is a new pickle (`df_<table>_clean.pkl`); every later notebook starts by loading the pickles it needs.
+- **Do only what was asked, then stop.** When the human gives one step at a time, do that step and hand back: no running ahead into the next notebooks. When the human only says "analyse this", go step by step anyway and stop after each notebook with 3 bullets: what it shows · what is flagged (red / orange) · what to look at next.
+- How to append, run and save one cell at a time: `notebook_io.md`.
 
 ## Rules
 
 | Rule | Detail |
 |---|---|
-| Short cells, minimal code | pandas + matplotlib only; one step per cell; about 10 lines a cell; at most one small plotting helper (≤ 10 lines) when the same plot is drawn 3+ times; no classes; a comment says *why*, not what |
-| Plots, not tables | the only table is `head()` once per table; every number that matters is a label on a bar or in a title; a title states what the plot shows ("B is missing 120 of 180 assemblies tasks"), not only what it is |
-| Colours | the data in neutral colours: `tab:blue`, `tab:purple`, `tab:gray`, `tab:cyan`, `tab:pink`, `tab:brown`, the same colour for the same group or category in every plot (the groups compared, A vs B, are neutral too). `tab:green` = check passed, `tab:orange` = warning, `tab:red` = problem: only for what a check finds (a flag in a title, a check's bar), never to fill a distribution |
-| Names | `df_<table>` from the file name (`tasks.csv` → `df_tasks`); a derived frame keeps the name plus what changed (`df_samples_dedup`); `s_` a Series or a set, `l_` a list, `d_` a dict; scalars have no prefix |
-| Raw data is read-only | never drop, fill, fix or deduplicate a `df_<table>`; a fix is a new frame, made only when the human asks |
-| Run everything | run the cells top to bottom with the notebook's own kernel and keep the outputs; if you cannot run them, say which cells to run |
-| After each section | stop and give 3 bullets: what the section shows · what is flagged (red / orange, with the check's name) · what to look at next. No answer to the business question, no fix to the data |
+| Minimal code | pandas, Plotly Express, scipy / statsmodels; the library call, not your own version of it; no helper functions, no classes; a comment says *why*, never what |
+| Normal formatting | one statement per line, never `;` to chain statements; a long call split over lines inside its parentheses; a cell is one step, about 15 lines at most |
+| One cell at a time | write it, run it, save the notebook, then the next; append only; never reread a notebook (you know what you wrote); never load the same data twice in a notebook |
+| Plots | Plotly Express only, never matplotlib; one `px` call per plot (several plots in a cell: `display(px.…, px.…)`); numbers on the plot (`text_auto=True`, or a label in the title); a title states the finding ("B misses 120 of 180 tasks"), not only what is drawn |
+| Under each plot | a markdown line: **good**, **warning** or **bad**, and why, with the numbers |
+| Colours | green `#2ca02c` good, orange `#ff7f0e` warning, red `#d62728` bad: only for what a check finds, never to tell categories apart. Categories, in this order: dark blue `#1f3a93`, cyan `#00bcd4`, black `#000000`, gray `#808080`, purple `#8e44ad`; never the same colour twice in one plot; 6+ categories: the top 4 and the rest as "other" in gray, or one facet per category. The same category keeps its colour in every plot (`color_discrete_map` or a fixed `category_orders`) |
+| Names | `df_<table>` from the file name (`tasks.csv` → `df_tasks`); a derived frame keeps the name plus what changed (`df_tasks_clean`, `df_tasks_by_day`); `s_` a Series or a set, `l_` a list, `d_` a dict; scalars with no prefix |
+| Raw data is read-only | never drop, fill, fix or deduplicate a `df_<table>` in place; a fix is a new frame, made when the human asks or agrees, its rule written in the markdown above it |
+| Rigor in proportion | a mechanical cause already found (a bug, a unit, a join) is stated and sized, not tested; a test is for "could chance explain this gap?" |
+| A second look after every fix | after a cleaning or a join, rerun the key and duplicate checks on the result |
 
-## 1 Loading the data
+The first cell of every notebook:
 
-One cell: imports, the colour constants, one `pd.read_csv` per file into `df_<table>`; parse obvious dates (`parse_dates`). Read the task text (README or prompt) first: it names the tables, what one row is, and **the groups compared** (checkpoints, vendors, variants, periods): write that group column down, every later check uses it.
+```python
+import pandas as pd
+import plotly.express as px
 
-## 2.1 Single-table analysis, for each table
+px.defaults.template = "plotly_white"
+px.defaults.color_discrete_sequence = ["#1f3a93", "#00bcd4", "#000000", "#808080", "#8e44ad"]
 
-### Overview
-`df.shape`, `df.dtypes`, `df.head()`. Then one line per column in markdown: its kind, from Anthropic's `explore-data`: **identifier**, **category** (≤ ~50 values), **number**, **time**, **boolean**, **text**.
+df_tasks = pd.read_pickle("df_tasks.pkl")
+```
 
-### Single-column (variation)
-One small plot per column, in one grid, chosen by kind:
+## Which file to read, and when
 
-| Kind | Plot |
+| When | Read |
 |---|---|
-| category, boolean | sorted horizontal bars of counts, labelled |
-| number | histogram (log x if very skewed) |
-| time | count per day (or per hour) |
-| identifier | histogram of rows per value (a steady count is the expected shape) |
-| text | histogram of lengths |
+| writing to a notebook at all | `notebook_io.md` |
+| step `00` | `0_load/load.md` |
+| a file is JSON, JSONL, or has lists or dicts inside cells | `0_load/json.md` |
+| parquet, Excel, SQL, several files per table, or too big for pandas | `0_load/big_or_other.md` |
+| each step `1N` | `1_table/table.md` |
+| `ydata-profiling` will not install or run | `1_table/column_flags.md` |
+| a column of free text, prompts or model outputs | `1_table/text.md` |
+| a date or time column | `1_table/time.md` |
+| an event log: one row per click, call, request or session event | `1_table/events.md` |
+| countries, regions, addresses or coordinates | `1_table/geo.md` |
+| pairs of ids: users ↔ items, sender ↔ receiver, buyer ↔ seller | `1_table/graph.md` |
+| step `20` | `2_joins/joins.md` |
+| every step `3N` | `3_analysis/analysis.md` (it routes to the right file in `3_analysis/kinds/`) |
+| a p-value, a confidence interval, a sample size | `3_analysis/tests.md` |
+| step `40`, or "summarise", "what do you recommend" | `4_report/report.md` |
 
-Flags, in the subplot's title, coloured by status (ydata-profiling alerts and their default thresholds; Deepchecks Data Integrity):
-
-| Flag | Rule | Status |
-|---|---|---|
-| nulls | share > 1 % orange, > 20 % red (ydata MISSING; Anthropic's warning / alert) | orange / red |
-| hidden nulls | placeholder values: "", "NA", "null", −1, 0, 999… where they cannot be real (Deepchecks MixedNulls) | orange |
-| mixed types | numbers and strings in one column (Deepchecks MixedDataTypes) | orange |
-| constant | one distinct value (ydata CONSTANT) | red |
-| high cardinality | a category with > 50 values (ydata HIGH_CARDINALITY) | orange |
-| imbalance | one value far more common than the others in a category of 3+ values (ydata IMBALANCE > 0.5) | orange |
-| outliers | beyond 1.5 × IQR, share > 1 %; show them, never delete them | orange |
-| impossible values | outside the column's domain: a rate outside [0, 1], a negative duration or count, a date in the future (Great Expectations `…to_be_between`) | red |
-| spelling variants | the same category written two ways ("GPT-4" / "gpt4") (Deepchecks StringMismatch) | orange |
-
-### Multi-columns (covariation)
-1. **What one row is** (the grain), in one sentence, and the **key** it implies (often a compound one: group + item + sample).
-2. **Key and duplicates**: rows per key value as a bar (1 = green; more = red). For duplicated keys, show which columns differ between the copies: if only a timestamp differs, the same result was logged twice. Exact duplicate rows too (ydata DUPLICATES).
-3. **What determines what**: a matrix of the column pairs, each cell 1:1, 1:N, N:1 or N:M (`groupby(a)[b].nunique().max() == 1`). Two different columns that are 1:1 are redundant or confounded: orange.
-4. **What changes with the groups compared**: for each other column, how different its mix is between the groups (total variation distance, 0 = same mix, 1 = no overlap), one bar per column: ≥ 0.9 red (it splits exactly like the groups, like a pipeline version or a run date: the groups' difference cannot be told apart from it), ≥ 0.1 orange (the groups are compared on different mixes), else green.
-5. **Logical constraints**: rules that must hold between columns (passed ⇒ compiled, start ≤ end, parts sum to the total); the count of rows that break one: red if any.
-6. Numeric correlations above 0.9 (ydata HIGH_CORRELATION): orange, as a heatmap only if there are 3+ numeric columns.
-
-## 2.2 Cross-table analysis
-
-1. **Join keys**: for each pair of tables sharing a column, a bar of keys in the left only / both / right only (`merge(indicator=True)`): orphans red. Check the join's cardinality with `merge(validate="m:1")` (or the expected one): a row explosion is red.
-2. **Shared columns agree**: a column in both tables (a family, a name) must match on joined rows: the share that disagrees, red if any.
-3. **Coverage per group**: the full list of items (tasks, users, prompts) against each group: a stacked bar per segment × group, complete green, missing red, duplicated orange. Groups compared on different items, or on a different mix of segments, is the most common reason a headline difference is not real.
-4. **New or missing categories**: a category present for one group only (Deepchecks NewCategory): orange. A category nested in the group by design (each author works for one vendor) is expected: neutral, not orange.
-5. **Overlap**: items shared between tables that should be disjoint (train / test, a public benchmark / a private set): the share shared, red if any (Deepchecks TrainTestSamplesMix).
-6. **The outcome per segment**: if a table holds an outcome (passed, label, score), join it to the categories of the other tables and plot its rate per value of each category (author, family, source…), sorted, with the overall rate as a line. A value at 0 % or 100 % over 20+ rows is red: a broken segment (a grader, unit or logging bug), not a weak one (Cleanlab `underperforming_group`); far from the rest, orange. This checks the data, it does not answer the question: report it, don't explain it.
-
-## Where this comes from
-
-| Part | Source |
-|---|---|
-| grain, column kinds, thresholds, the order of the profile | Anthropic, `knowledge-work-plugins/data/skills/explore-data` |
-| per-column flags and their defaults | ydata-profiling (pandas-profiling) alerts |
-| hidden nulls, mixed types, spelling variants, overlap between sets | Deepchecks Data Integrity and Train-Test Validation suites |
-| compound keys, value ranges, logical constraints | Great Expectations, pandera |
-| short cells, a markdown note per step, run top to bottom | OpenAI, `skills/jupyter-notebook` |
-| variation within a column, covariation between columns | Wickham, *R for Data Science*, Exploratory Data Analysis |
-| coverage per group, what changes with the groups, joins | not covered by the profilers; added here for comparing groups (checkpoints, vendors, variants) |
+Where each part comes from: `README.md`.
