@@ -29,7 +29,7 @@ Write these in the notebook's first markdown cell, from the task text and what t
 4. **Plot before testing**: one plot that shows the gap, at the unit of analysis, with its spread.
 5. **Test** with `tests.md`: the outcome's type and the design pick the test; report the effect size and its 95 % CI with the p-value, always.
 6. **Split it**: a gap that holds overall must be checked within each main segment (Simpson's paradox: the mix moved, not the rate), and a gap found in one segment among many is a lead, not a conclusion.
-7. **Say what it means for the decision**, in one line under the last plot: **good**, **warning** or **bad**.
+7. **Say what it means for the decision**, in one line under the last plot, the verdict in its colour (`SKILL.md`, "Under each plot").
 
 ## Which kind of analysis this is
 
