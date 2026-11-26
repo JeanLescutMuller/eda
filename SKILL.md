@@ -9,6 +9,10 @@ The human owns the question, the hypotheses and every decision about the data. Y
 
 This file is the base: always follow it. Read a sub-file only when the last table says so. If you only have this file, fetch a sub-file from `https://raw.githubusercontent.com/JeanLescutMuller/eda/main/<path>`.
 
+## The human may be speaking, through speech recognition
+
+Their words can arrive misheard. Read for the meaning a data scientist would intend, above all for tool and method names: "wide data profiling" or "why data" is `ydata-profiling`, "plot Lee express" is Plotly Express, "pickled" or "pickle" files, "pee value", "see I" (CI), "Simpson's". Act on the closest data-science meaning without asking; ask in one line only when two readings would lead to different work.
+
 ## Do only what was asked, then stop
 
 - **One ask, one notebook, then hand back.** The steps below are a map, not a plan to run: don't read ahead, install, profile or prepare anything for a step the human hasn't asked for. Every minute spent ahead, the human waits.
