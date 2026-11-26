@@ -26,6 +26,21 @@ nbformat.write(nb, path)
 - Never rewrite or reorder the human's cells; never touch a notebook the human is working in.
 - A cell that errors: fix it by appending a corrected cell, or, if it's the last cell and nobody has read it yet, replace that one cell. Never leave a traceback as the last output.
 
+## Check it opens: after creating a notebook, and after every write
+
+A notebook that won't open is a common failure: invalid JSON from a hand-written file, a missing field, an output in the wrong format, or a kernel whose environment was changed under it. Check every time, before telling the human it's ready:
+
+```python
+import nbformat
+
+nb = nbformat.read(path, as_version=4)
+nbformat.validate(nb)
+```
+
+- Write notebooks only through `nbformat` (or the notebook tool), never by hand-writing or `json.dump`-ing the JSON yourself.
+- If a Jupyter server is running, also check it can serve the file: `curl -s -o /dev/null -w "%{http_code}" "<server>/api/contents/<path>?token=<token>"` must give `200`; and the notebook's kernel must still start (`jupyter kernelspec list`, then run its first cell).
+- A check that fails: fix the notebook first (rewrite it from its cells with `nbformat`, or rebuild the environment the kernel needs), then check again. Say what failed and what you fixed, in one line.
+
 ## Installing a package
 
 `%pip install <package>` in a cell of the notebook (it installs into the kernel's own environment), then restart nothing: import it in the next cell. If the install fails (no network, no wheel for this Python), say so in one line and use the fallback the sub-file names.
