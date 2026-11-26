@@ -12,7 +12,7 @@ Read the task text (README, prompt, data dictionary). Write down, in the noteboo
 
 ## The cells, in order
 
-1. The first cell of `SKILL.md` without the pickles: imports and Plotly defaults.
+1. The install cell (`SKILL.md`, "Install everything once"): `%pip install` whatever is missing among pandas, plotly, scipy, statsmodels and ydata-profiling, before anything else. Then the first cell of `SKILL.md` without the pickles: imports and Plotly defaults.
 2. One read per file, as is: `df_<table> = pd.read_csv(path)`. Then `df_<table>.head()` for each, one table per cell, so the human sees the raw data before any change.
 3. The types, one cell per table:
    - dates: `pd.to_datetime(..., utc=True)` when there's a time zone or a `Z`; say which columns were parsed and how many failed (`errors="coerce"`, then count the new NaT);

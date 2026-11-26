@@ -13,7 +13,7 @@ One notebook per table, numbered in the order the task names the tables (`10_eda
    ProfileReport(df_tasks, title="tasks", minimal=len(df_tasks) > 50_000).to_file("tasks.html")
    ```
 
-   Tell the human the file's name: they open it themselves; don't read it back. Not installed: one `%pip install ydata-profiling` in a cell. If that or the report fails, don't fix it: skip it, use `column_flags.md` in this notebook, say so in one line.
+   Tell the human the file's name: they open it themselves; don't read it back. It was installed in `00`'s first cell (`SKILL.md`), even if that changed pandas' version. If it's still not available, or the report fails, don't fix it: skip it, use `column_flags.md` in this notebook, say so in one line.
 3. **The grain and unique values**: a markdown line "one row = one <what>", then `df.nunique(dropna=False)` with its share of the row count. Unique on every row: a key candidate; a share near 1 that isn't 1: a key with duplicates.
 4. **Key and duplicates**: rows per key value (1 = green, more = red), exact duplicate rows, duplicates on every column but the id (the same record loaded twice). For duplicated keys, which columns differ between the copies.
 5. **A version, source or exporter column, if there is one**: the null share and the error share per value and per month (`px.line(color=...)`). A new version with new nulls or parse failures is the most common planted bug.
