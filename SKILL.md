@@ -21,7 +21,8 @@ The human owns the question, the hypotheses and every decision about the data (w
 
 - **A new notebook for each step, named as the human says** (or as above). Once you've moved on, never edit an earlier notebook unless the human asks: the human may be reading it, and every write makes Jupyter reload it on their screen.
 - **Notebooks hand over through pickles**, never through each other's cells: `00` writes `df_<table>.pkl`; a cleaned table is a new pickle (`df_<table>_clean.pkl`); every later notebook starts by loading the pickles it needs.
-- **Do only what was asked, then stop.** When the human gives one step at a time, do that step and hand back: no running ahead into the next notebooks. When the human only says "analyse this", go step by step anyway and stop after each notebook with 3 bullets: what it shows · what is flagged (red / orange) · what to look at next.
+- **Do only what was asked, then stop. This pipeline is a map, not a plan to run.** When the human asks for one notebook, write that notebook and hand back at once: don't read ahead, install, profile or prepare anything for the next steps. Every minute spent ahead is a minute the human waits for their turn. When the human only says "analyse this", go step by step anyway and stop after each notebook with 3 bullets: what it shows · what is flagged (red / orange) · what to look at next.
+- **Speed is part of the job.** All the work happens in the notebook, cell by cell: no exploring the data in a shell first, no script that builds a whole notebook at once, no precomputing numbers for the verdict lines (write each verdict after its own cell's output). A package that won't install in one try is skipped, not fixed: use the fallback.
 - How to append, run and save one cell at a time: `notebook_io.md`.
 
 ## Rules
