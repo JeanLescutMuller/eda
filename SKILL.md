@@ -33,10 +33,27 @@ These hold in any environment: a hosted pad with its own agent tools, a local Ju
 |---|---|
 | Use the notebook tools you're given | if the environment has its own way to add and run cells, use only that. A shell recipe only when there is none: `notebook_io.md` |
 | **One kernel: the one already set up** | before your first notebook, look for a notebook already in the working directory (the human's, or the task's): its kernel (`metadata.kernelspec`) is the one that works here. Give every notebook you create that same kernel, run every cell on it, and install packages only into it (`%pip install` in a cell it runs). No notebook yet: the environment's default kernel, the same for every notebook |
-| Never change the environment | no new or changed Python environment, no `uv` / `conda` / `pip uninstall` / upgrade, no other Python version, never restart or kill a kernel or server the human uses. The only change allowed: `%pip install <package>` in a notebook cell |
-| Check the packages once, in the first cell | its imports tell you what exists. Missing: one `%pip install` in a cell. If the install or the import fails, don't fix it: use the fallback the sub-file names, or tell the human in one line |
+| Never change the environment | no new or changed Python environment, no `uv` / `conda` / `pip uninstall` / upgrade, no other Python version, never restart or kill a kernel or server the human uses. The only changes allowed: installing a package into the kernel, as below |
+| Check the packages once, in the first cell | its imports tell you what exists. Missing: install it as below. If that or the import still fails, don't fix it: use the fallback the sub-file names, or tell the human in one line |
 | Every notebook must open | write it only through the notebook tool or `nbformat`, never as hand-written JSON; after each write, check it (`nbformat.validate(nbformat.read(path, as_version=4))`, or reopen it with the notebook tool). A notebook that fails is fixed before you say it's ready |
 | A cell that errors | append a corrected cell (or replace that last cell if nobody has read it); never leave a traceback as the last output |
+
+Installing a package, in a notebook cell, so it lands in the kernel's own Python:
+
+```python
+%pip install ydata-profiling
+```
+
+If its output says `No module named pip` (the cell doesn't error, so read the output; environments made with `uv` have no pip), install pip into the kernel's Python first, then retry once:
+
+```python
+import sys
+
+!{sys.executable} -m ensurepip
+%pip install ydata-profiling
+```
+
+Two tries at most, then the fallback.
 
 The first cell of every notebook:
 

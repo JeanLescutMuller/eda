@@ -38,5 +38,5 @@ nbformat.validate(nbformat.read(path, as_version=4))
 ```
 
 - One cell per call, run before the next is written. `NotebookClient` runs it on the notebook's own kernel: never name another kernel or Python.
-- A package: `%pip install <package>` as a cell of the notebook, run the same way, so it lands in that kernel's environment.
+- A package: `%pip install <package>` as a cell of the notebook, run the same way, so it lands in that kernel's environment; `No module named pip`: first a cell `!{sys.executable} -m ensurepip` (`SKILL.md`, "Installing a package").
 - `nbformat` or `nbclient` missing: tell the human which cells to run, and claim no output you didn't see.
