@@ -1,14 +1,6 @@
-# Writing to a notebook: one cell at a time
+# No notebook tool, only a shell: append, run, save one cell
 
-The human watches the notebook fill up. Each cell must appear, with its output, before you write the next one. Pick the first way that exists in your environment, and don't build your own tooling beyond it.
-
-| Your environment | How |
-|---|---|
-| The notebook tool your environment gives you (a Jupyter MCP server, a hosted notebook's own agent tools) | its own "append cell" + "execute cell" calls; it saves for you |
-| Jupyter is running and you have a shell | `nbformat` to append the cell, `nbclient` to run it, then write the file (below) |
-| Nothing but files | append the cell with `nbformat`, say which cells to run, and don't claim outputs you did not see |
-
-## With a shell: append, run, save
+Only when the environment gives no way to add and run cells. Same rules as `SKILL.md`, "The environment is not yours": nothing here installs, restarts or changes anything.
 
 ```python
 import nbformat
@@ -17,30 +9,12 @@ from nbclient import NotebookClient
 path = "10_eda_tasks.ipynb"
 nb = nbformat.read(path, as_version=4)
 nb.cells.append(nbformat.v4.new_code_cell(source))
-NotebookClient(nb, kernel_name="python3", timeout=600).execute()
+NotebookClient(nb, timeout=600).execute()
 nbformat.write(nb, path)
+nbformat.validate(nbformat.read(path, as_version=4))
 ```
 
-- This reruns every cell of the notebook each time. That is fine for the short notebooks of this skill (one step each). If a notebook gets slow, keep one kernel alive (`nbclient`'s `KernelManager`, or `jupyter_client`) and run only the new cell, then write its outputs into the file.
-- A new notebook: `nbformat.v4.new_notebook()`, written once, before its first cell.
-- Never rewrite or reorder the human's cells; never touch a notebook the human is working in.
-- A cell that errors: fix it by appending a corrected cell, or, if it's the last cell and nobody has read it yet, replace that one cell. Never leave a traceback as the last output.
-
-## Check it opens: after creating a notebook, and after every write
-
-A notebook that won't open is a common failure: invalid JSON from a hand-written file, a missing field, an output in the wrong format, or a kernel whose environment was changed under it. Check every time, before telling the human it's ready:
-
-```python
-import nbformat
-
-nb = nbformat.read(path, as_version=4)
-nbformat.validate(nb)
-```
-
-- Write notebooks only through `nbformat` (or the notebook tool), never by hand-writing or `json.dump`-ing the JSON yourself.
-- If a Jupyter server is running, also check it can serve the file: `curl -s -o /dev/null -w "%{http_code}" "<server>/api/contents/<path>?token=<token>"` must give `200`; and the notebook's kernel must still start (`jupyter kernelspec list`, then run its first cell).
-- A check that fails: fix the notebook first (rewrite it from its cells with `nbformat`, or rebuild the environment the kernel needs), then check again. Say what failed and what you fixed, in one line.
-
-## Installing a package
-
-`%pip install <package>` in a cell of the notebook (it installs into the kernel's own environment), then restart nothing: import it in the next cell. If the install fails (no network, no wheel for this Python), say so in one line and use the fallback the sub-file names.
+- One cell per call, run before the next is written. This reruns the notebook's cells each time: fine for one-step notebooks.
+- `NotebookClient` uses the notebook's own kernel (its metadata, else the default one): never name another kernel or Python.
+- A new notebook: `nbformat.write(nbformat.v4.new_notebook(), path)` once, before its first cell.
+- `nbformat` or `nbclient` missing: write the cells with `nbformat` only if it exists, tell the human which cells to run, and claim no output you didn't see.

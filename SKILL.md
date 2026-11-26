@@ -1,47 +1,41 @@
 ---
 name: eda
-description: Data analysis in Jupyter notebooks, from the raw files to the answer - load, check each table, join, then the analysis the question calls for (what happened, did X cause Y, which is better, what will happen, what should we do, is the data or the world the same), each step its own numbered notebook the human can read while the next one is written. Plotly Express one call per plot, numbers on the plots, a good / warning / bad line under each, green / orange / red kept for what a check finds. Hierarchical - this file is the base; it says which sub-file to read for a data format (JSON, logs, text, time, geo, graphs) or a kind of analysis (A/B test, metric drop, model evaluation, forecasting, pricing, distribution shift…), each with the hypotheses to list, the test to run and the traps. Use for any data analysis, data-science exercise or interview, before any model or test.
+description: Data analysis in Jupyter notebooks, from the raw files to the answer - load, check each table, join, then the analysis the question calls for - one numbered notebook per step, written only when the human asks for it, so the human reads one while the next is written. Plotly Express, numbers and 95 % confidence intervals on the plots, a coloured good / warning / bad line under each. Works in any notebook environment (a hosted coding pad, a local Jupyter) without touching its kernel or packages. This file is the base; it names the sub-file to read for a data format (JSON, logs, text, time, geo, graphs) or a kind of analysis (A/B test, metric drop, model evaluation, forecasting, pricing, distribution shift…). Use for any data analysis, data-science exercise or interview.
 ---
 
 # EDA: from the raw data to the answer
 
-The human owns the question, the hypotheses and every decision about the data (what to clean, what to drop, what to conclude). This skill gets the data on the table fast, checks it, and runs the analysis the human asks for, in notebooks the human reads while you write the next one.
+The human owns the question, the hypotheses and every decision about the data. You get the data on the table fast and run what the human asks, one step at a time.
 
-**This file is the base: always follow it.** Read a sub-file only when the table at the end says so. Paths are relative to this file; if you only have this file, fetch a sub-file from `https://raw.githubusercontent.com/JeanLescutMuller/eda/main/<path>`.
+This file is the base: always follow it. Read a sub-file only when the last table says so. If you only have this file, fetch a sub-file from `https://raw.githubusercontent.com/JeanLescutMuller/eda/main/<path>`.
 
-## The pipeline: one notebook per step
+## Do only what was asked, then stop
+
+- **One ask, one notebook, then hand back.** The steps below are a map, not a plan to run: don't read ahead, install, profile or prepare anything for a step the human hasn't asked for. Every minute spent ahead, the human waits.
+- **All the work in the notebook, cell by cell**: no exploring the data in a shell first, no script that builds a notebook at once. Write a cell, run it, look at its output, then write its verdict.
+- Asked only to "analyse this": go step by step anyway, and stop after each notebook with 3 bullets: what it shows · what is flagged · what to look at next.
 
 ```
-00_loading.ipynb          load every table, show it raw, fix the types, pickle each one        → 0_load/load.md
-1N_eda_<table>.ipynb      one per table (10, 11, 12…): profile, key, duplicates, flags          → 1_table/table.md
-20_joins.ipynb            the tables together: keys, rows duplicated or lost by each join       → 2_joins/joins.md
-3N_<question>.ipynb       one per question (30, 31…): hypotheses, plots, tests                  → 3_analysis/analysis.md
-40_report.ipynb           the answer, the numbers behind it, caveats, the recommendation        → 4_report/report.md
+00_loading           load every table, show it raw, fix the types, pickle each one     → 0_load/load.md
+1N_eda_<table>       one per table (10, 11…): profile, key, duplicates, flags            → 1_table/table.md
+20_joins             keys, rows each join duplicates or loses, coverage                  → 2_joins/joins.md
+3N_<question>        one per question (30, 31…): hypotheses, plots, tests                → 3_analysis/analysis.md
+40_report            the answer, the numbers behind it, the recommendation               → 4_report/report.md
 ```
 
-- **A new notebook for each step, named as the human says** (or as above). Once you've moved on, never edit an earlier notebook unless the human asks: the human may be reading it, and every write makes Jupyter reload it on their screen.
-- **Notebooks hand over through pickles**, never through each other's cells: `00` writes `df_<table>.pkl`; a cleaned table is a new pickle (`df_<table>_clean.pkl`); every later notebook starts by loading the pickles it needs.
-- **Do only what was asked, then stop. This pipeline is a map, not a plan to run.** When the human asks for one notebook, write that notebook and hand back at once: don't read ahead, install, profile or prepare anything for the next steps. Every minute spent ahead is a minute the human waits for their turn. When the human only says "analyse this", go step by step anyway and stop after each notebook with 3 bullets: what it shows · what is flagged (red / orange) · what to look at next.
-- **Speed is part of the job.** All the work happens in the notebook, cell by cell: no exploring the data in a shell first, no script that builds a whole notebook at once, no precomputing numbers for the verdict lines (write each verdict after its own cell's output). A package that won't install in one try is skipped, not fixed: use the fallback.
-- How to append, run and save one cell at a time: `notebook_io.md`.
+A new notebook per step, named as the human says. Never edit one you've moved past unless asked: the human may be reading it. Notebooks hand over through pickles (`df_<table>.pkl`, a cleaned one `df_<table>_clean.pkl`), never through each other's cells. If the environment allows only one notebook, one `## <step>` section per step instead, appended at the end.
 
-## Rules
+## The environment is not yours
+
+These hold in any environment: a hosted pad with its own agent tools, a local Jupyter, a plain folder.
 
 | Rule | Detail |
 |---|---|
-| Minimal code | pandas, Plotly Express, scipy / statsmodels; the library call, not your own version of it; no helper functions, no classes; a comment says *why*, never what |
-| Normal formatting | one statement per line, never `;` to chain statements; a long call split over lines inside its parentheses; a cell is one step, about 15 lines at most |
-| One cell at a time | write it, run it, save the notebook, then the next; append only; never reread a notebook (you know what you wrote); never load the same data twice in a notebook |
-| **Every notebook you write must open** | a notebook that won't open is a common failure and the worst one: the human loses the step. After creating a notebook and after every write to it, validate it and check Jupyter can open it (`notebook_io.md`, "Check it opens"); never hand over a notebook that fails |
-| Never touch the environment Jupyter runs on | no `uv sync`, `uv add`, `uv run` without `--no-project`, `pip uninstall` or Python change in the project's `.venv`, `pyproject.toml` or `uv.lock`; add a package with `%pip install` in the notebook, or use a throwaway environment outside the project folder |
-| Plots | Plotly Express only, never matplotlib; one `px` call per plot (several plots in a cell: `display(px.…, px.…)`); numbers on the plot (`text_auto=True`, or a label in the title); a title states the finding ("B misses 120 of 180 tasks"), not only what is drawn |
-| **Every bar plot has its 95 % confidence interval** | every bar of a mean, a rate or a share gets error bars, always, without being asked: `df_rate = df.groupby("group").passed.agg(["mean", "sem"]).reset_index()`, then `px.bar(df_rate, x="group", y="mean", error_y=1.96 * df_rate["sem"], text_auto=".1%")`; a rate near 0 or 1, or a small n: Wilson intervals (`3_analysis/tests.md`). The same for box and point plots of means. The one exception: a bar that counts the whole dataset (rows per source) is exact: say "exact count" in its title instead |
-| Under each plot | a markdown cell, the verdict **in its colour**, then why, with the numbers. Exactly one of: `🟢 <span style="color:#2ca02c">**good**</span>: …` · `🟠 <span style="color:#ff7f0e">**warning**</span>: …` · `🔴 <span style="color:#d62728">**bad**</span>: …`. The dot keeps the colour where a renderer strips the `<span>`; never a plain black **good** |
-| Colours | green `#2ca02c` good, orange `#ff7f0e` warning, red `#d62728` bad: only for what a check finds, never to tell categories apart. Categories, in this order: dark blue `#1f3a93`, cyan `#00bcd4`, black `#000000`, gray `#808080`, purple `#8e44ad`; never the same colour twice in one plot; 6+ categories: the top 4 and the rest as "other" in gray, or one facet per category. The same category keeps its colour in every plot (`color_discrete_map` or a fixed `category_orders`) |
-| Names | `df_<table>` from the file name (`tasks.csv` → `df_tasks`); a derived frame keeps the name plus what changed (`df_tasks_clean`, `df_tasks_by_day`); `s_` a Series or a set, `l_` a list, `d_` a dict; scalars with no prefix |
-| Raw data is read-only | never drop, fill, fix or deduplicate a `df_<table>` in place; a fix is a new frame, made when the human asks or agrees, its rule written in the markdown above it |
-| Rigor in proportion | a mechanical cause already found (a bug, a unit, a join) is stated and sized, not tested; a test is for "could chance explain this gap?" |
-| A second look after every fix | after a cleaning or a join, rerun the key and duplicate checks on the result |
+| Use the notebook tools you're given | if the environment has its own way to add and run cells, use only that. A shell recipe only when there is none: `notebook_io.md` |
+| Never change the environment | no new or changed Python environment, no `uv` / `conda` / `pip uninstall` / upgrade, no other Python version, never restart or kill a kernel or server the human uses. The only change allowed: `%pip install <package>` in a notebook cell |
+| Check the packages once, in the first cell | its imports tell you what exists. Missing: one `%pip install` in a cell. If the install or the import fails, don't fix it: use the fallback the sub-file names, or tell the human in one line |
+| Every notebook must open | write it only through the notebook tool or `nbformat`, never as hand-written JSON; after each write, check it (`nbformat.validate(nbformat.read(path, as_version=4))`, or reopen it with the notebook tool). A notebook that fails is fixed before you say it's ready |
+| A cell that errors | append a corrected cell (or replace that last cell if nobody has read it); never leave a traceback as the last output |
 
 The first cell of every notebook:
 
@@ -55,24 +49,36 @@ px.defaults.color_discrete_sequence = ["#1f3a93", "#00bcd4", "#000000", "#808080
 df_tasks = pd.read_pickle("df_tasks.pkl")
 ```
 
+## Code and plots
+
+| Rule | Detail |
+|---|---|
+| Minimal code | pandas, Plotly Express, scipy / statsmodels: the library call, no helper functions, no classes; one step per cell, about 15 lines at most |
+| Normal formatting | one statement per line, never `;`; a long call split inside its parentheses |
+| Plots | Plotly Express only, never matplotlib; one `px` call per plot (several in a cell: `display(px.…, px.…)`); numbers on the plot (`text_auto=True`); a title that states the finding |
+| **A 95 % confidence interval on every bar** | every bar, box or point of a mean, a rate or a share, unasked: `df_rate = df.groupby("group").passed.agg(["mean", "sem"]).reset_index()` then `px.bar(df_rate, x="group", y="mean", error_y=1.96 * df_rate["sem"], text_auto=".1%")`; Wilson for a rate near 0 or 1 (`3_analysis/tests.md`). A count of the whole dataset is exact: "exact count" in its title |
+| **The verdict, in colour, under each plot** | a markdown cell, exactly one of `🟢 <span style="color:#2ca02c">**good**</span>: …` · `🟠 <span style="color:#ff7f0e">**warning**</span>: …` · `🔴 <span style="color:#d62728">**bad**</span>: …`, then why, with the numbers |
+| Colours | green, orange, red only for what a check finds. Categories: dark blue `#1f3a93`, cyan `#00bcd4`, black `#000000`, gray `#808080`, purple `#8e44ad`, in that order, never one colour twice in a plot; 6+ categories: top 4 and "other" in gray. A category keeps its colour in every plot |
+| Names | `df_<table>` from the file name; a derived frame adds what changed (`df_tasks_clean`); `s_` Series or set, `l_` list, `d_` dict |
+| Raw data is read-only | a fix is a new frame, made when the human agrees, its rule in the markdown above it; after it, rerun the key and duplicate checks |
+| Rigor in proportion | a mechanical cause (a bug, a unit, a join) is stated and sized, not tested; a test answers "could chance explain this gap?" |
+
 ## Which file to read, and when
 
 | When | Read |
 |---|---|
-| writing to a notebook at all | `notebook_io.md` |
+| no notebook tool, only a shell | `notebook_io.md` |
 | step `00` | `0_load/load.md` |
-| a file is JSON, JSONL, or has lists or dicts inside cells | `0_load/json.md` |
-| parquet, Excel, SQL, several files per table, or too big for pandas | `0_load/big_or_other.md` |
+| JSON, JSONL, lists or dicts inside cells | `0_load/json.md` |
+| parquet, Excel, SQL, many files per table, too big for pandas | `0_load/big_or_other.md` |
 | each step `1N` | `1_table/table.md` |
-| `ydata-profiling` will not install or run | `1_table/column_flags.md` |
-| a column of free text, prompts or model outputs | `1_table/text.md` |
-| a date or time column | `1_table/time.md` |
-| an event log: one row per click, call, request or session event | `1_table/events.md` |
-| countries, regions, addresses or coordinates | `1_table/geo.md` |
-| pairs of ids: users ↔ items, sender ↔ receiver, buyer ↔ seller | `1_table/graph.md` |
+| no `ydata-profiling` | `1_table/column_flags.md` |
+| free text, prompts or model outputs | `1_table/text.md` |
+| dates or times | `1_table/time.md` |
+| one row per event (click, call, request) | `1_table/events.md` |
+| places or coordinates | `1_table/geo.md` |
+| pairs of ids (user ↔ item, buyer ↔ seller) | `1_table/graph.md` |
 | step `20` | `2_joins/joins.md` |
-| every step `3N` | `3_analysis/analysis.md` (it routes to the right file in `3_analysis/kinds/`) |
+| each step `3N` | `3_analysis/analysis.md`, which routes to `3_analysis/kinds/` |
 | a p-value, a confidence interval, a sample size | `3_analysis/tests.md` |
-| step `40`, or "summarise", "what do you recommend" | `4_report/report.md` |
-
-Where each part comes from: `README.md`.
+| step `40`, "summarise", "what do you recommend" | `4_report/report.md` |
